@@ -1,9 +1,9 @@
 /**
- * @brief Jednoduchý webserver z podporov skriptovania v bashi
+ * @brief SBSEMWS - Simple Bash Scripting Enabled Multithreaded Web Server
  *
- * HTTP server implementujúci metódu GET na posielanie súborov po sieti. Server využíva vlákna 
- * na obsluhu viacerých klientov súčasne. Ak príde požiadavka na súbor s príponou ".bash", 
- * server predá skriptu parametre, skript vykoná a výstup odošle klientovi.
+ * Simple HTTP server that implements GET method for sending files over the network. Server uses threads 
+ * to serve multiple clients at once. If client sends request for file ending with ".bash", 
+ * server will get parameters from url(if any), execute script and sends output to the client.
  */ 
 
 /**
@@ -43,15 +43,15 @@ int free_threads; /**< počet voľných vlákien */
 pthread_mutex_t lock_free_threads; /**< mutex slúžiaci na uzamykanie premennej free_threads */
 
 /**
- * @brief Funkcia vracajúca názov súboru na odoslanie
+ * @brief Functions that decodes name of file that should be sent to the client
  *
- * Funkcia spracuje požiadavku od klienta. Ak klient žiada o súbor metódov inou ako je GET,
- * funkia odošle klientovy ERROR 400 a vráti prázdny "reťazec", ak klient požiada iba o "/" vráti "index.html", 
- * inak vráti meno súboru
+ * If client sends any request other that GET,
+ * ERROR 400 and an empty string is returned.If client requests "/" server will return "index.html", 
+ * else it will try to return file with name decoded from the request.
  *
- * @param socket socket na ktorom komunikuje klient so serverom
- * @param buffer pole typu char do ktorého sa číta a z ktorého sa posiela
- * @return názov súboru o ktorý žiada klient
+ * @param socket on which communication occurs
+ * @param buffer array  of chars
+ * @return name of file that client sent requested for
  */
 char* parse_request ( int socket, char* buffer )
 {
@@ -88,19 +88,17 @@ char* parse_request ( int socket, char* buffer )
 }
 
 /**
- * @brief Funkcia ktorá sa stará o prečítanie súboru z parametra a následné odoslanie na socket z parametra
+ * @brief Function reads a file specified in parameter and then sends the file to socket specified in parameter
  *
- * Funkcia najskôr skontroluje či sa na začiatku mena súboru nenachádzajú znaky "/" alebo ".."
- * pomocou ktorých by si bolo možné vyžiadať súbor mimo aktuálny adresár. Ak sa tieto znaky na začiatku
- * nachádzajú vráti klientovi ERROR 403 a vráti sa z funkcie. Ak zistí, že sa jedná o súbor z príponou
- * ".bash", skúsi či je spustiteľný a ak Áno spustí ho a výstup zo stdout presmeruje na soket.
- * Ak sa nejedná o skript pokúsi sa súbor otvoriť, prečítať do buffera a odoslať na soket. 
- * V obidvoch prípadoch vráti ERROR 403 ak užívateľ nemá prístup k súboru, a ERROR 404 
- * ak súbor neexistuje. 
+ * At first function checks for "/" or ".." at the begining of requested filename(this would enable client to get file outside of our www root directory).
+ * If requested file is .bash file, function will try to execute it and then send stdout to the socket
+ * If requested file is not a bash script, it will be read to the buffer and sent to socket.
+ * In both cases ERROR 403 is returned in case that server user do not have acces to the file and ERROR 404 
+ * if file does not exist. 
  *
- * @param socket soket na ktorom komunikuje klient so serverom
- * @param buffer pole typu char do ktorého sa číta a z ktorého sa posiela
- * @param file_to_send súbor ktorý sa pokúsy funkcia odoslať klientovi
+ * @param socket on which communication occurs
+ * @param buffer array  of chars
+ * @param file_to_send file that will be sent to the client
  */
 void send_response ( int socket, char* buffer, char* file_to_send )
 {
@@ -193,14 +191,13 @@ void send_response ( int socket, char* buffer, char* file_to_send )
 }
 
 /**
- * @brief Funkcia ktorú vykonáva každé vlákno programu
+ * @brief Function that is executed by each thread
  *
- * Funkcia najprv vytvorí buffer o veľkosti BUFFERSIZE, potom sa pomocou funkcie
- * parse_request() pokúsi zistiť aký súbor chce klient poslať. keď zistí meno súboru
- * predá ho funkcii send_response() a tá sa pokúsi súbor odoslať. Nakoniec zavrie soket
- * priráta ku globalbálnej premennej free_threads a končí volaním funkcie pthread_exit()
+ * Function first create buffer of size = BUFFERSIZE, then function
+ * parse_request() tries to find out which file to send. Filename is sent to 
+ * function send_response() which sends the file to the socket. 
  *
- * @param args parameter funcie je soket na ktorom komunikuje server z daným klientom
+ * @param args socket on which communication occurs
  */
 void* server_thread_func ( void* args )
 {
@@ -225,9 +222,9 @@ void* server_thread_func ( void* args )
 }
 
 /**
- * @brief funkcia starajúca sa o ukončenie programu pri zachyteni signalu SIGTERM alebo SIGKILL
+ * @brief Function that terminates server process when SIGTERM or SIGKILL is catched
  *
- * @param a cislo signalu
+ * @param signal number
  */
 void terminate ( int a )
 {
