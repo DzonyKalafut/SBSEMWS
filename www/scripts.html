@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Dzonyho server - index</title>
+<script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+<script type="text/javascript">
+
+function bind_submit() {
+$('#formular').submit(function() {
+	var cely_prikaz = $('#select').val();
+	var param1 = $('[name=parameter1]').val();
+	var param2 = $('[name=parameter2]').val();
+	var param3 = $('[name=parameter3]').val();
+	
+	if ( param1 == "" ){
+		window.location.href = cely_prikaz;
+		return false;
+	}
+	else
+		cely_prikaz = cely_prikaz + '?' + param1;
+	if ( param2 == "" ){
+		window.location.href = cely_prikaz;
+		return false;
+	}
+	else
+		cely_prikaz = cely_prikaz + '?' + param2;
+	if ( param3 == "" ){
+		window.location.href = cely_prikaz;
+		return false;
+	}
+	else{
+		window.location.href = cely_prikaz + '?' + param3;
+		return false;
+	}
+});
+}
+</script>
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+<body onload="bind_submit()">
+	<div id="hlavny">
+		<div id="logo"></div>
+		<div id="menu">
+			<ul>		
+				<li><a href="index.html">Hlavná stránka</a></li>
+				<li><a href="zadanie.html">Zadanie</a></li>
+				<li><a href="docu.html">Dokumentácia</a></li>
+				<li><a href="scripts.html">Bash skripty</a></li>
+				<li><a href="toto_neexistuje" class="special">!dead Link</a></li>
+				<li><a href="sysinfo2.bash" class="special">!forbidden</a></li>
+			</ul>
+		</div>
+		<div id="content">
+		<h1 id="nadpis">Dynamické HTML pomocou BASH skriptov</h1>
+		
+		<p align="center">
+		<h2>Zadaj parametre:</h2>
+		</p>
+		<form id="formular">
+		<input type="text" name="parameter1" id="p1">
+		<input type="text" name="parameter2" id="p2">
+		<input type="text" name="parameter3" id="p3">		
+		<h2>Vyber skript:</h2>
+		<select id="select">
+		<option value="index.bash" selected="selected">index.bash</option>
+		<option value="sysinfo.bash">sysinfo.bash</option>
+		<option value="zrob_retazec.bash">zrob_retazec.bash</option>
+		</select>
+		<input type="submit" value="Odošli">
+		</form>
+       	<h2>Popis skriptov:</h2>
+		<p>
+		<b>index.bash</b> - kópia index.html, ak nezadáte parametre, vyberie sa náhodne jeden zo štryroch 
+		obrázkov lamy a zobrazí sa text "Vitajte!!!". 1. parameter určuje aký text sa vypíše, 2. parameter určuje,
+		 ktorý zo štyroch obrázkov sa zobrazí(číslo 1-4) a 3. parameter určuje akú farbu bude mať text(treba zadať napr. red, green
+         alebo rgb(FFFFFF)...)
+         </p>
+         <p>
+         <b>sysinfo.bash</b> - zobrazí informácie o systéme na ktorom beží server. Nepríjma parametre.
+         </p>
+         <p>
+		<b>zrob_retazec.bash</b> - Reťazec z 1. parametra prevráti a nahradí v ňom všetky výskyty reťazca z 2. parametra
+		 reťazcom z 3. parametra. Všetky 3 parametre musia byť zadané.
+		</p> 
+			</div>
+			<div id="footer">© Ján Hajnár 2012</div>
+	</div>
+</body>
+</html>
